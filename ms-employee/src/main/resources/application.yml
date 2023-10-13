@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: ms-employee
+  # H2 database configurations
+  datasource:
+    url: jdbc:h2:file:./ms-employee/employees_data
+    username: admin
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8001
