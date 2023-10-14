@@ -4,6 +4,7 @@ import br.izaias.valentim.msemployee.entities.Employee;
 import br.izaias.valentim.msemployee.repositories.EmployeeJpaRepository;
 import br.izaias.valentim.msemployee.utils.CpfValidator;
 import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class EmployeeService {
         this.repository = repository;
         this.cpfValidator = cpfValidator;
     }
-
+    @Transactional
     public ResponseEntity create(Employee employeeToSave) {
         try {
             cpfValidator.validateCpf(employeeToSave.getCpf());
@@ -54,19 +55,19 @@ public class EmployeeService {
             return repository.getEmployeeByCpf(cpf);
         return null;
     }
-
+    @Transactional
     public ResponseEntity updateEmployee(String cpf, String newName, String newUserRole) {
 
         if (cpfValidator.validateCpf(cpf)) {
             Employee employeeOnDB = repository.getEmployeeByCpf(cpf);
 
             if (employeeOnDB == null) {
-                return null;
+                return ResponseEntity.notFound().build();
             }
             employeeOnDB.setName(newName);
             employeeOnDB.setUserRole(newUserRole);
             repository.save(employeeOnDB);
-            ResponseEntity.noContent();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID CPF");
     }
