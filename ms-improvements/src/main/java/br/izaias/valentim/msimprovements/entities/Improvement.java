@@ -20,6 +20,7 @@ public class Improvement {
 
     public enum Result {
         IN_PROGRESS,
+        CLOSED,
         APPROVED,
         REJECTED
     }
