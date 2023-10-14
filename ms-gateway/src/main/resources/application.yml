@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      routes:
+        #ms-employee
+      - id: ms-employee
+        uri: lb://MS-EMPLOYEE
+        predicates:
+          - Path=/employees/**
+
+      #ms-improvements
+
+      - id: ms-improvements
+        uri: lb://MS-IMPROVEMENTS
+        predicates:
+          - Path=/improvements/**
+server:
+  port: 8765
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
