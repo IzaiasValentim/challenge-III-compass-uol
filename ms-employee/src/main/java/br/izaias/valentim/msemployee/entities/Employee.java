@@ -10,7 +10,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 11, unique = true, nullable = false)
+    @Column(length = 11, nullable = false)
     private String cpf;
     @Column(nullable = false)
 
