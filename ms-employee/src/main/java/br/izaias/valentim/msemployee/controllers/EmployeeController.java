@@ -42,7 +42,7 @@ public class EmployeeController {
         if (employeeFinds == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok("can vote");
+        return ResponseEntity.ok(employeeFinds.getName()+"- can vote");
     }
 
     @PatchMapping(value = "{cpf}")

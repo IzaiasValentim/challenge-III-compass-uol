@@ -1,7 +1,10 @@
 package br.izaias.valentim.msimprovements.controllers;
 
 import br.izaias.valentim.msimprovements.entities.Improvement;
+import br.izaias.valentim.msimprovements.feignClient.MsEmployeeFeign;
 import br.izaias.valentim.msimprovements.services.ImprovementService;
+import feign.FeignException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,9 +18,11 @@ import java.util.Optional;
 @RequestMapping(value = "improvements")
 public class ImprovementController {
     private final ImprovementService service;
+    private final MsEmployeeFeign employeeFeign;
 
-    public ImprovementController(ImprovementService service) {
+    public ImprovementController(ImprovementService service, MsEmployeeFeign employeeFeign) {
         this.service = service;
+        this.employeeFeign = employeeFeign;
     }
 
     @GetMapping(value = "status")
@@ -49,6 +54,23 @@ public class ImprovementController {
     @GetMapping
     public ResponseEntity<List<Improvement>> getAllImprovements() {
         return ResponseEntity.ok(service.getAllImprovements());
+    }
+
+    @GetMapping(value = "employees/{cpf}")
+    public ResponseEntity<String> validateEmployeeAndCPF(@PathVariable String cpf) {
+        try {
+            return employeeFeign.validateEmployeeAndCPF(cpf);
+        } catch (FeignException.FeignClientException fEx) {
+            if (fEx.status() == HttpStatus.NOT_FOUND.value()) {
+                return ResponseEntity.status(fEx.status()).body("Employee not alowed to vote");
+            } else if (fEx.status() == HttpStatus.BAD_REQUEST.value()) {
+                return ResponseEntity.status(fEx.status()).body("INVALID - CPF");
+            } else {
+                return ResponseEntity.status(fEx.status()).body(fEx.getMessage());
+            }
+        }
+
+
     }
 
     @DeleteMapping(value = "{idImprovement}")
@@ -87,5 +109,7 @@ public class ImprovementController {
             return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
         }
     }
+
+
 }
 
