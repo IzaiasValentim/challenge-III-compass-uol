@@ -2,10 +2,12 @@ package br.izaias.valentim.msimprovements.services;
 
 import br.izaias.valentim.msimprovements.entities.Improvement;
 import br.izaias.valentim.msimprovements.entities.Voute;
+import br.izaias.valentim.msimprovements.feignClient.MsEmployeeFeign;
 import br.izaias.valentim.msimprovements.repositories.ImprovementRepository;
 import br.izaias.valentim.msimprovements.services.exceptions.ImprovementNotFoundException;
 import br.izaias.valentim.msimprovements.services.exceptions.PersistenceException;
 import br.izaias.valentim.msimprovements.utils.ManageSectionOfVotes;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -24,13 +26,16 @@ import java.util.Set;
 public class ImprovementService {
     private final ImprovementRepository repository;
     private final ManageSectionOfVotes sectionManager;
+    private final MsEmployeeFeign employeeFeign;
 
     @Autowired
     public ImprovementService(ImprovementRepository repository,
-                              ManageSectionOfVotes sectionManager) {
+                              ManageSectionOfVotes sectionManager,
+                              MsEmployeeFeign employeeFeign) {
 
         this.repository = repository;
         this.sectionManager = sectionManager;
+        this.employeeFeign = employeeFeign;
     }
 
     @Transactional
@@ -56,6 +61,8 @@ public class ImprovementService {
 
     @Transactional
     public ResponseEntity registerVoute(Long idImprovement, String vouteValue, String cpf) {
+
+        validateIfExistEmployeeAndCPF(cpf);
         Voute vouteCreate = new Voute();
         if (vouteValue.equals("Approved"))
             vouteCreate = new Voute(Voute.vouteValue.Approved, cpf);
@@ -73,8 +80,22 @@ public class ImprovementService {
             return ResponseEntity.ok().build();
 
         } else {
-            String error = "there is already a vote with the informed cpf";
+            String error = "there is already a vote with the informed cpf or session is closed";
             throw new ResponseStatusException(HttpStatus.CONFLICT, error);
+        }
+    }
+
+    public void validateIfExistEmployeeAndCPF(String cpf) {
+        try {
+            employeeFeign.validateEmployeeAndCPF(cpf);
+        } catch (FeignException.FeignClientException fEx) {
+            if (fEx.status() == HttpStatus.NOT_FOUND.value()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "CPF NOT ALLOWED TO VOTE");
+            } else if (fEx.status() == HttpStatus.BAD_REQUEST.value()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID - CPF");
+            } else {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "FEIGN ERROR");
+            }
         }
     }
 
@@ -134,14 +155,14 @@ public class ImprovementService {
     }
 
     public Improvement getImprovementsById(Long id) {
-            return repository.findById(id).orElseThrow(()->new ImprovementNotFoundException("IMPROVEMENT NOT FOUND"));
+        return repository.findById(id).orElseThrow(() -> new ImprovementNotFoundException("IMPROVEMENT NOT FOUND"));
     }
 
     @Transactional
     public Improvement updateImprovement(Long idImprovament, String newName, String newDescription) {
         try {
             if (idImprovament == null || (newName.isEmpty() && newDescription.isEmpty())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"ENTER ID AND NAME OR DESCRIPTION");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ENTER ID AND NAME OR DESCRIPTION");
             }
             Optional<Improvement> toUpdate = repository.findById(idImprovament);
             if (toUpdate.isEmpty()) {
@@ -152,7 +173,7 @@ public class ImprovementService {
             if (!newDescription.isEmpty())
                 toUpdate.get().setDescription(newDescription);
             return repository.save(toUpdate.get());
-        }catch (DataAccessException dAex){
+        } catch (DataAccessException dAex) {
             throw new PersistenceException("ERROR AT UPDATE IMPROVEMENT");
         }
 
