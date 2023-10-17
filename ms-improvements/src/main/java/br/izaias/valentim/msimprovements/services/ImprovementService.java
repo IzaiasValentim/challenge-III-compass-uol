@@ -36,6 +36,10 @@ public class ImprovementService {
     @Transactional
     public Improvement createImprovement(Improvement improvementToCreate) {
         try {
+            if (improvementToCreate.getName().isEmpty() || improvementToCreate.getDescription().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NAME AND DESCRIPTION ARE REQUIRED");
+            }
+
             improvementToCreate.setResult(Improvement.Result.IN_PROGRESS);
             Improvement improvementCreated = repository.save(improvementToCreate);
 
