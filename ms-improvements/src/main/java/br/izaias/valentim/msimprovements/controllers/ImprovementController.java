@@ -85,9 +85,13 @@ public class ImprovementController {
 
     @DeleteMapping(value = "{idImprovement}")
     public ResponseEntity deleteImprovement(@PathVariable Long idImprovement) {
-        if (service.deleteImprovement(idImprovement))
+        try {
+            service.deleteImprovement(idImprovement);
             return ResponseEntity.noContent().build();
-        return ResponseEntity.badRequest().build();
+
+        } catch (ImprovementNotFoundException improvementNotFoundException) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PatchMapping(value = "{idImprovement}")
