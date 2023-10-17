@@ -2,16 +2,17 @@ package br.izaias.valentim.msemployee.controllers;
 
 import br.izaias.valentim.msemployee.entities.Employee;
 import br.izaias.valentim.msemployee.services.EmployeeService;
+import br.izaias.valentim.msemployee.services.exceptions.EmployeeNotFoundException;
+import br.izaias.valentim.msemployee.services.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/employees/")
+@RequestMapping(value = "/employees")
 public class EmployeeController {
     private final EmployeeService service;
 
@@ -32,17 +33,34 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity saveEmployee(@RequestBody Employee employeeToSave) {
-        return service.create(employeeToSave);
+
+        try {
+
+            return service.create(employeeToSave);
+
+        } catch (PersistenceException persistenceException) {
+
+            return ResponseEntity.badRequest().body(persistenceException.getMessage());
+
+        }
     }
 
     @GetMapping(value = "{cpf}")
     public ResponseEntity<String> validateEmployeeAndCPF(@PathVariable String cpf) {
-        Employee employeeFinds = service.getByCpf(cpf);
+        try {
 
-        if (employeeFinds == null) {
+            service.getByCpf(cpf);
+            return ResponseEntity.ok("can vote");
+
+        } catch (EmployeeNotFoundException notFoundException) {
+
             return ResponseEntity.notFound().build();
+
+        } catch (ResponseStatusException rEx) {
+
+            return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
+
         }
-        return ResponseEntity.ok(employeeFinds.getName()+"- can vote");
     }
 
     @PatchMapping(value = "{cpf}")
@@ -50,17 +68,25 @@ public class EmployeeController {
             @PathVariable String cpf,
             @RequestParam String newName,
             @RequestParam String newUserRole) {
-        if (newName.isEmpty() || newUserRole.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+        try {
+            if (newName.isEmpty() && newUserRole.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            return service.updateEmployee(cpf, newName, newUserRole);
+
+        } catch (ResponseStatusException rEx) {
+            return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
+        } catch (EmployeeNotFoundException employeeNotFoundException) {
+            return ResponseEntity.notFound().build();
         }
-        return service.updateEmployee(cpf, newName, newUserRole);
     }
 
     @DeleteMapping(value = "{cpf}")
     public ResponseEntity deleteEmployee(@PathVariable String cpf) {
-        if (service.deleteEmployee(cpf)) {
-            return ResponseEntity.ok().build();
+        try {
+            return service.deleteEmployee(cpf);
+        } catch (ResponseStatusException rEx) {
+            return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 }
