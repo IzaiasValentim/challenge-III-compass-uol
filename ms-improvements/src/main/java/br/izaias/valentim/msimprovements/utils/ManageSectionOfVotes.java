@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ManageSectionOfVotes {
-    private final long timeToVote = 1000 * 15;
+    private final long timeToVote = 1000 * 60;
 
     private final ImprovementService improvementService;
 
