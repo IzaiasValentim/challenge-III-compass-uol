@@ -71,7 +71,7 @@ public class ImprovementController {
             return employeeFeign.validateEmployeeAndCPF(cpf);
         } catch (FeignException.FeignClientException fEx) {
             if (fEx.status() == HttpStatus.NOT_FOUND.value()) {
-                return ResponseEntity.status(fEx.status()).body("EMPLOYEE NOT ALLOWED TO VOTE");
+                return ResponseEntity.status(fEx.status()).body("CPF NOT ALLOWED TO VOTE");
             } else if (fEx.status() == HttpStatus.BAD_REQUEST.value()) {
                 return ResponseEntity.status(fEx.status()).body("INVALID - CPF");
             } else {
