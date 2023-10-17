@@ -3,6 +3,7 @@ package br.izaias.valentim.msimprovements.controllers;
 import br.izaias.valentim.msimprovements.entities.Improvement;
 import br.izaias.valentim.msimprovements.feignClient.MsEmployeeFeign;
 import br.izaias.valentim.msimprovements.services.ImprovementService;
+import br.izaias.valentim.msimprovements.services.exceptions.PersistenceException;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,16 +32,22 @@ public class ImprovementController {
     }
 
     @PostMapping
-    public ResponseEntity<Improvement> createImprovement(@RequestBody Improvement improvementToSave) {
-        service.createImprovement(improvementToSave);
+    public ResponseEntity createImprovement(@RequestBody Improvement improvementToSave) {
+        try {
+            service.createImprovement(improvementToSave);
 
-        URI readerLocation = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .query("id={id}")
-                .buildAndExpand(improvementToSave.getId())
-                .toUri();
+            URI readerLocation = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .query("id={id}")
+                    .buildAndExpand(improvementToSave.getId())
+                    .toUri();
 
-        return ResponseEntity.created(readerLocation).build();
+            return ResponseEntity.created(readerLocation).build();
+        } catch (ResponseStatusException rEx) {
+            return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
+        } catch (RuntimeException runtimeException) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping(value = "{idImprovement}")
