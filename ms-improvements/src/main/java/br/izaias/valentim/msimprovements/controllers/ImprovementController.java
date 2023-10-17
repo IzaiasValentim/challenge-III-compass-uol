@@ -3,6 +3,7 @@ package br.izaias.valentim.msimprovements.controllers;
 import br.izaias.valentim.msimprovements.entities.Improvement;
 import br.izaias.valentim.msimprovements.feignClient.MsEmployeeFeign;
 import br.izaias.valentim.msimprovements.services.ImprovementService;
+import br.izaias.valentim.msimprovements.services.exceptions.ImprovementNotFoundException;
 import br.izaias.valentim.msimprovements.services.exceptions.PersistenceException;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
@@ -52,10 +53,12 @@ public class ImprovementController {
 
     @GetMapping(value = "{idImprovement}")
     public ResponseEntity<Improvement> getImprovementById(@PathVariable Long idImprovement) {
-        Optional<Improvement> improvement = service.getImprovementsById(idImprovement);
-        if (improvement.isEmpty())
+        try {
+            Improvement improvement = service.getImprovementsById(idImprovement);
+            return ResponseEntity.ok(improvement);
+        } catch (ImprovementNotFoundException improvementNotFoundException) {
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(improvement.get());
+        }
     }
 
     @GetMapping
@@ -88,16 +91,25 @@ public class ImprovementController {
     }
 
     @PatchMapping(value = "{idImprovement}")
-    public ResponseEntity<Improvement> updateImprovement(
+    public ResponseEntity updateImprovement(
             @PathVariable Long idImprovement,
             @RequestParam String newName,
             @RequestParam String newDescription) {
         if (newName == null && newDescription == null) {
             return ResponseEntity.badRequest().build();
         }
-        Improvement toUpdate = service.updateImprovement(
-                idImprovement, newName, newDescription);
-        return ResponseEntity.noContent().build();
+        try {
+            Improvement toUpdate = service.updateImprovement(
+                    idImprovement, newName, newDescription);
+            return ResponseEntity.noContent().build();
+        } catch (ResponseStatusException rEx) {
+            return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
+        } catch (ImprovementNotFoundException improvementNotFoundException) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (PersistenceException persistenceException) {
+            return ResponseEntity.internalServerError().build();
+        }
+
     }
 
     @PostMapping("{idImprovement}")
