@@ -14,7 +14,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "improvements")
@@ -72,15 +71,13 @@ public class ImprovementController {
             return employeeFeign.validateEmployeeAndCPF(cpf);
         } catch (FeignException.FeignClientException fEx) {
             if (fEx.status() == HttpStatus.NOT_FOUND.value()) {
-                return ResponseEntity.status(fEx.status()).body("Employee not alowed to vote");
+                return ResponseEntity.status(fEx.status()).body("EMPLOYEE NOT ALLOWED TO VOTE");
             } else if (fEx.status() == HttpStatus.BAD_REQUEST.value()) {
                 return ResponseEntity.status(fEx.status()).body("INVALID - CPF");
             } else {
                 return ResponseEntity.status(fEx.status()).body(fEx.getMessage());
             }
         }
-
-
     }
 
     @DeleteMapping(value = "{idImprovement}")
@@ -105,11 +102,16 @@ public class ImprovementController {
         try {
             Improvement toUpdate = service.updateImprovement(
                     idImprovement, newName, newDescription);
+
             return ResponseEntity.noContent().build();
+
         } catch (ResponseStatusException rEx) {
+
             return ResponseEntity.status(rEx.getStatusCode()).body(rEx.getMessage());
+
         } catch (ImprovementNotFoundException improvementNotFoundException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
         } catch (PersistenceException persistenceException) {
             return ResponseEntity.internalServerError().build();
         }
