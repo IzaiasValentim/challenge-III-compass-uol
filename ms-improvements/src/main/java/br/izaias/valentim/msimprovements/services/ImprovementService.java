@@ -133,30 +133,34 @@ public class ImprovementService {
         return repository.findAll();
     }
 
-    public Optional<Improvement> getImprovementsById(Long id) {
-        return repository.findById(id);
+    public Improvement getImprovementsById(Long id) {
+            return repository.findById(id).orElseThrow(()->new ImprovementNotFoundException("IMPROVEMENT NOT FOUND"));
     }
 
     @Transactional
     public Improvement updateImprovement(Long idImprovament, String newName, String newDescription) {
-        if (idImprovament == null || (newName.isEmpty() && newDescription.isEmpty())) {
-            return null;
+        try {
+            if (idImprovament == null || (newName.isEmpty() && newDescription.isEmpty())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"ENTER ID AND NAME OR DESCRIPTION");
+            }
+            Optional<Improvement> toUpdate = repository.findById(idImprovament);
+            if (toUpdate.isEmpty()) {
+                throw new ImprovementNotFoundException("IMPROVEMENT NOT FOUND");
+            }
+            if (!newName.isEmpty())
+                toUpdate.get().setName(newName);
+            if (!newDescription.isEmpty())
+                toUpdate.get().setDescription(newDescription);
+            return repository.save(toUpdate.get());
+        }catch (DataAccessException dAex){
+            throw new PersistenceException("ERROR AT UPDATE IMPROVEMENT");
         }
 
-        Optional<Improvement> toUpdate = repository.findById(idImprovament);
-        if (toUpdate.isEmpty()) {
-            return null;
-        }
-        if (!newName.isEmpty())
-            toUpdate.get().setName(newName);
-        if (!newDescription.isEmpty())
-            toUpdate.get().setDescription(newDescription);
-        return repository.save(toUpdate.get());
     }
 
     @Transactional
     public Boolean deleteImprovement(Long idImprovement) {
-        Improvement getImprovement = getImprovementsById(idImprovement).orElse(null);
+        Improvement getImprovement = getImprovementsById(idImprovement);
         if (getImprovement == null) {
             return false;
         }
