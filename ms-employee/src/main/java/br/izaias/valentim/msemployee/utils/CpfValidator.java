@@ -1,9 +1,8 @@
 package br.izaias.valentim.msemployee.utils;
 
 import br.com.caelum.stella.validation.CPFValidator;
-import org.springframework.http.HttpStatus;
+import br.izaias.valentim.msemployee.services.exceptions.InvalidCpfException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 @Component
 public class CpfValidator {
@@ -17,7 +16,7 @@ public class CpfValidator {
             cpfValidator.assertValid(cpf);
             return true;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+            throw new InvalidCpfException("INVALID CPF - : " + e.getMessage());
         }
     }
 }
