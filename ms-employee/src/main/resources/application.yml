@@ -3,7 +3,7 @@ spring:
     name: ms-employee
   # H2 database configurations
   datasource:
-    url: jdbc:h2:file:./ms-employee/employees_data
+    url: jdbc:h2:file:./ms-employee/employees_data;AUTO_SERVER=TRUE
     username: admin
     password:
   h2:
@@ -16,9 +16,11 @@ spring:
     show-sql: true
 
 server:
-  port: 8001
+  port: ${PORT:0}
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
