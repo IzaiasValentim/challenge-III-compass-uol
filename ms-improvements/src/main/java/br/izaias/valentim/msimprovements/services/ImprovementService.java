@@ -7,6 +7,8 @@ import br.izaias.valentim.msimprovements.repositories.ImprovementRepository;
 import br.izaias.valentim.msimprovements.services.exceptions.ImprovementNotFoundException;
 import br.izaias.valentim.msimprovements.services.exceptions.PersistenceException;
 import br.izaias.valentim.msimprovements.utils.ManageSectionOfVotes;
+import br.izaias.valentim.msimprovements.utils.messages.ImprovementStatusPublisher;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +29,18 @@ public class ImprovementService {
     private final ImprovementRepository repository;
     private final ManageSectionOfVotes sectionManager;
     private final MsEmployeeFeign employeeFeign;
+    private final ImprovementStatusPublisher publisherStatus;
 
     @Autowired
     public ImprovementService(ImprovementRepository repository,
                               ManageSectionOfVotes sectionManager,
-                              MsEmployeeFeign employeeFeign) {
+                              MsEmployeeFeign employeeFeign,
+                              ImprovementStatusPublisher publisherStatus) {
 
         this.repository = repository;
         this.sectionManager = sectionManager;
         this.employeeFeign = employeeFeign;
+        this.publisherStatus = publisherStatus;
     }
 
     @Transactional
@@ -143,10 +148,13 @@ public class ImprovementService {
                 repository.save(gerImprovement);
 
             }
+            publisherStatus.sendStatus(gerImprovement,approved,rejected);
         } catch (DataAccessException dEx) {
 
             throw new PersistenceException("ERROR AT SAVE IMPROVEMENT");
 
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
