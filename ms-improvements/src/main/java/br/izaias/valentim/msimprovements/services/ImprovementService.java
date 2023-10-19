@@ -44,7 +44,7 @@ public class ImprovementService {
     }
 
     @Transactional
-    public Improvement createImprovement(Improvement improvementToCreate) {
+    public Improvement createImprovement(Improvement improvementToCreate, Long TimeSessionOfVotes) {
         try {
             if (improvementToCreate.getName().isEmpty() || improvementToCreate.getDescription().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NAME AND DESCRIPTION ARE REQUIRED");
@@ -53,7 +53,9 @@ public class ImprovementService {
             improvementToCreate.setResult(Improvement.Result.IN_PROGRESS);
             Improvement improvementCreated = repository.save(improvementToCreate);
 
-            sectionManager.execute(improvementCreated);
+            TimeSessionOfVotes = TimeSessionOfVotes * 1000 * 60;
+
+            sectionManager.execute(improvementCreated, TimeSessionOfVotes);
 
             return improvementCreated;
 
@@ -90,7 +92,7 @@ public class ImprovementService {
         }
     }
 
-    public void validateIfExistEmployeeAndCPF(String cpf) {
+    private void validateIfExistEmployeeAndCPF(String cpf) {
         try {
             employeeFeign.validateEmployeeAndCPF(cpf);
         } catch (FeignException.FeignClientException fEx) {
@@ -148,7 +150,7 @@ public class ImprovementService {
                 repository.save(gerImprovement);
 
             }
-            publisherStatus.sendStatus(gerImprovement,approved,rejected);
+            publisherStatus.sendStatus(gerImprovement, approved, rejected);
         } catch (DataAccessException dEx) {
 
             throw new PersistenceException("ERROR AT SAVE IMPROVEMENT");

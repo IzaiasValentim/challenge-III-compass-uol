@@ -5,6 +5,7 @@ import br.izaias.valentim.msimprovements.feignClient.MsEmployeeFeign;
 import br.izaias.valentim.msimprovements.services.ImprovementService;
 import br.izaias.valentim.msimprovements.services.exceptions.ImprovementNotFoundException;
 import br.izaias.valentim.msimprovements.services.exceptions.PersistenceException;
+import br.izaias.valentim.msimprovements.services.modelsRequest.CreateImprovementRequestModel;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,14 +33,14 @@ public class ImprovementController {
     }
 
     @PostMapping
-    public ResponseEntity createImprovement(@RequestBody Improvement improvementToSave) {
+    public ResponseEntity createImprovement(@RequestBody CreateImprovementRequestModel model) {
         try {
-            service.createImprovement(improvementToSave);
+            service.createImprovement(model.getImprovementToSave(), model.getTimeSessionOfVotes());
 
             URI readerLocation = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .query("id={id}")
-                    .buildAndExpand(improvementToSave.getId())
+                    .buildAndExpand(model.getImprovementToSave().getId())
                     .toUri();
 
             return ResponseEntity.created(readerLocation).build();
