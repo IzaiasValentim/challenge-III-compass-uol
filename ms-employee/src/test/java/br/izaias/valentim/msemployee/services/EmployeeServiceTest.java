@@ -3,6 +3,7 @@ package br.izaias.valentim.msemployee.services;
 import br.izaias.valentim.msemployee.common.Employees;
 import br.izaias.valentim.msemployee.entities.Employee;
 import br.izaias.valentim.msemployee.repositories.EmployeeJpaRepository;
+import br.izaias.valentim.msemployee.services.exceptions.InvalidCpfException;
 import br.izaias.valentim.msemployee.utils.CpfValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,5 +50,17 @@ class EmployeeServiceTest {
         verify(repository, times(1)).save(eq(employeeToSave));
 
     }
+
+    @Test
+    public void testCreateEmployee_InvalidCpf() {
+        Employee employeeToSave = Employees.employee_type_invalid_cpf;
+        doThrow(new InvalidCpfException("Invalid CPF")).when(cpfValidator).validateCpf(anyString());
+
+        ResponseEntity response = employeeService.create(employeeToSave);
+
+        assertEquals(400, response.getStatusCode().value());
+        verify(repository, never()).save(any());
+    }
+
 
 }
