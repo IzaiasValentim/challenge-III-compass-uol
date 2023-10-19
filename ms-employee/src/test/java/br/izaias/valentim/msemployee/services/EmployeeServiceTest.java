@@ -17,6 +17,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -62,5 +64,19 @@ class EmployeeServiceTest {
         verify(repository, never()).save(any());
     }
 
+    @Test
+    public void testGetAllEmployees() {
+        Employee employee1 = new Employee("26553035040", "Employee 01", "Role");
+        Employee employee2 = new Employee("14917441030", "Employee 02", "Admin");
+        List<Employee> employees = Arrays.asList(employee1, employee2);
+
+        when(repository.findAll()).thenReturn(employees);
+
+        List<Employee> result = employeeService.gelAllEmployees();
+
+        assertEquals(2, result.size());
+        assertEquals("Employee 01", result.get(0).getName());
+        assertEquals("Admin", result.get(1).getUserRole());
+    }
 
 }
