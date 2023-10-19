@@ -111,4 +111,90 @@ class EmployeeServiceTest {
         }
     }
 
+    @Test
+    public void testUpdateEmployeeSuccess() {
+        String validCpf = Employees.employee_type_valid_cpf.getCpf();
+        Employee employeeOnDB = Employees.employee_type_valid_cpf;
+
+        when(cpfValidator.validateCpf(eq(validCpf))).thenReturn(true);
+        when(repository.getEmployeeByCpf(eq(validCpf))).thenReturn(employeeOnDB);
+
+        ResponseEntity response = employeeService.updateEmployee(validCpf, employeeOnDB.getName(), employeeOnDB.getName());
+
+        assertEquals(204, response.getStatusCode().value());
+        verify(repository, times(1)).save(eq(employeeOnDB));
+    }
+
+    @Test
+    public void testUpdateEmployee_EmployeeNotFound() {
+        String nonExistentCpf = Employees.employee_type_valid_cpf.getCpf();
+
+        when(cpfValidator.validateCpf(eq(nonExistentCpf))).thenReturn(true);
+        when(repository.getEmployeeByCpf(eq(nonExistentCpf))).thenReturn(null);
+
+        try {
+            employeeService.updateEmployee(nonExistentCpf, "UPDATE_TEST", "ADMIN");
+        } catch (EmployeeNotFoundException e) {
+            assertEquals("EMPLOYEE NOT FOUND", e.getMessage());
+        }
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    public void testSucessDeleteEmployee() {
+
+        String cpf_Employee_To_Delete = Employees.employee_type_valid_cpf.getCpf();
+        Employee employeeToDelete = Employees.employee_type_valid_cpf;
+
+        when(cpfValidator.validateCpf(eq(cpf_Employee_To_Delete))).thenReturn(true);
+        when(repository.getEmployeeByCpf(eq(cpf_Employee_To_Delete))).thenReturn(Employees.employee_type_valid_cpf);
+
+        ResponseEntity response = employeeService.deleteEmployee(cpf_Employee_To_Delete);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(repository, times(1)).delete(eq(employeeToDelete));
+
+    }
+
+    @Test
+    public void testDeleteEmployeeEmployeeNotFound() {
+        String nonExistentCpf = Employees.employee_type_valid_cpf.getCpf();
+
+        when(cpfValidator.validateCpf(eq(nonExistentCpf))).thenReturn(true);
+        when(repository.getEmployeeByCpf(eq(nonExistentCpf))).thenReturn(null);
+
+        try {
+            employeeService.deleteEmployee(nonExistentCpf);
+        } catch (ResponseStatusException e) {
+            assertEquals(404, e.getStatusCode().value());
+        }
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    public void testUpdateEmployeeInvalidCpf() {
+        String invalidCpf = Employees.employee_type_invalid_cpf.getCpf();
+
+        when(cpfValidator.validateCpf(invalidCpf)).thenThrow(InvalidCpfException.class);
+
+        try {
+            employeeService.updateEmployee(invalidCpf, "UPDATE_TEST", "ADMIN");
+        } catch (ResponseStatusException e) {
+            assertEquals(400, e.getStatusCode().value());
+        }
+        verify(repository, never()).save(any());
+    }
+    @Test
+    public void testDeleteEmployee_InvalidCpf() {
+        String invalidCpf = Employees.employee_type_invalid_cpf.getCpf();
+
+        when(cpfValidator.validateCpf(eq(invalidCpf))).thenReturn(false);
+
+        try {
+            employeeService.deleteEmployee(invalidCpf);
+        } catch (ResponseStatusException e) {
+            assertEquals(404, e.getStatusCode().value());
+        }
+        verify(repository, never()).delete(any());
+    }
 }
