@@ -184,6 +184,7 @@ class EmployeeServiceTest {
         }
         verify(repository, never()).save(any());
     }
+
     @Test
     public void testDeleteEmployee_InvalidCpf() {
         String invalidCpf = Employees.employee_type_invalid_cpf.getCpf();
