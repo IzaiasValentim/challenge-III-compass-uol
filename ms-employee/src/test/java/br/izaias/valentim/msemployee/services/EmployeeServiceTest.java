@@ -3,6 +3,7 @@ package br.izaias.valentim.msemployee.services;
 import br.izaias.valentim.msemployee.common.Employees;
 import br.izaias.valentim.msemployee.entities.Employee;
 import br.izaias.valentim.msemployee.repositories.EmployeeJpaRepository;
+import br.izaias.valentim.msemployee.services.exceptions.EmployeeNotFoundException;
 import br.izaias.valentim.msemployee.services.exceptions.InvalidCpfException;
 import br.izaias.valentim.msemployee.utils.CpfValidator;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -68,6 +70,7 @@ class EmployeeServiceTest {
     public void testGetAllEmployees() {
         Employee employee1 = new Employee("26553035040", "Employee 01", "Role");
         Employee employee2 = new Employee("14917441030", "Employee 02", "Admin");
+
         List<Employee> employees = Arrays.asList(employee1, employee2);
 
         when(repository.findAll()).thenReturn(employees);
@@ -77,6 +80,35 @@ class EmployeeServiceTest {
         assertEquals(2, result.size());
         assertEquals("Employee 01", result.get(0).getName());
         assertEquals("Admin", result.get(1).getUserRole());
+    }
+
+    @Test
+    public void testGetByCpf_Success() {
+        Employee employee = Employees.employee_type_valid_cpf;
+
+        when(cpfValidator.validateCpf(eq(employee.getCpf()))).thenReturn(true);
+        when(repository.getEmployeeByCpf(eq(employee.getCpf()))).thenReturn(employee);
+
+        ResponseEntity response = employeeService.getByCpf(employee.getCpf());
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(employee, response.getBody());
+    }
+
+    @Test
+    public void testGetByCpf_CpfNotFound() {
+        String nonExistentCpf = "98765432109";
+
+        when(cpfValidator.validateCpf(eq(nonExistentCpf))).thenReturn(true);
+
+        when(repository.getEmployeeByCpf(eq(nonExistentCpf))).
+                thenThrow(new EmployeeNotFoundException("EMPLOYEE NOT FOUND"));
+
+        try {
+            employeeService.getByCpf(nonExistentCpf);
+        } catch (EmployeeNotFoundException e) {
+            assertEquals("EMPLOYEE NOT FOUND", e.getMessage());
+        }
     }
 
 }
