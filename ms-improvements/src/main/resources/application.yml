@@ -15,7 +15,7 @@ spring:
       ddl-auto: update
     show-sql: true
   rabbitmq:
-    host: localhost
+    host: rabbit-container
     port: 5672
     username: guest
     password: guest
@@ -26,7 +26,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://ms-eureka-docker:8761/eureka
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 mq:
