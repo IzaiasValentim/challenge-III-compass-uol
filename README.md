@@ -116,7 +116,7 @@ newDescription
 
 ## Setup:
 
-- The Project will be available in two versions, with and without docker configurations, the one without will be in the V.1.0 branch, and the one with docker is V.1.0-docker.
+- The Project will be available in two versions, with and without docker configurations, the one without will be in the main(Relative at V.1.0) branch, and the one with docker is V.1.0-docker.
 
 ### Without docker:
 
