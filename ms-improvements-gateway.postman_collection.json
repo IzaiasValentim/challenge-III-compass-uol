@@ -1,0 +1,139 @@
+{
+	"info": {
+		"_postman_id": "3a9a7642-bb6f-45b2-98ee-2165a5f58e84",
+		"name": "ms-improvements-gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26278251"
+	},
+	"item": [
+		{
+			"name": "/improvements/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8765/improvements/id-improvement"
+			},
+			"response": []
+		},
+		{
+			"name": "/improvements",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8765/improvements"
+			},
+			"response": []
+		},
+		{
+			"name": "/improvements",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n{\r\n  \"improvementToSave\": {\r\n    \"name\":\"name-improvement\",\r\n    \"description\":\"description\"\r\n  },\r\n  \"timeSessionOfVotes\": 2\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8765/improvements"
+			},
+			"response": []
+		},
+		{
+			"name": "/improvements/{id}",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "voute",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "cpf",
+							"value": "37347852005",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:8765/improvements/2"
+			},
+			"response": []
+		},
+		{
+			"name": "/improvements/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8765/improvements/id-improvement"
+			},
+			"response": []
+		},
+		{
+			"name": "/improvements/{id}",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "conte",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "newName",
+							"value": "data-to-change",
+							"type": "text"
+						},
+						{
+							"key": "newDescription",
+							"value": "data-to-change",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:8765/improvements/id-improvement"
+			},
+			"response": []
+		}
+	]
+}

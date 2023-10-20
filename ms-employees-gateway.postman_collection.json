@@ -1,0 +1,115 @@
+{
+	"info": {
+		"_postman_id": "194b7b7d-0ccf-4414-9b60-9212f998cc13",
+		"name": "ms-employees-gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26278251"
+	},
+	"item": [
+		{
+			"name": "/employees/{cpf}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8765/employees/cpf-number"
+			},
+			"response": []
+		},
+		{
+			"name": "/employees",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8765/employees"
+			},
+			"response": []
+		},
+		{
+			"name": "/employees",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"cpf\":\"validcpf\",\r\n    \"name\":\"name-employee\",\r\n    \"userRole\":\"role\"\r\n}"
+				},
+				"url": "http://localhost:8765/employees"
+			},
+			"response": []
+		},
+		{
+			"name": "/employees/{cpf}",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "newName",
+							"value": "new-name",
+							"type": "text"
+						},
+						{
+							"key": "newUserRole",
+							"value": "new-role",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8765/employees/cpf-number",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"employees",
+						"cpf-number"
+					],
+					"query": [
+						{
+							"key": "newName",
+							"value": "Zaza izaias",
+							"disabled": true
+						},
+						{
+							"key": "newUserRole",
+							"value": "Adm",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/employees/{cpf}",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8765/employees/cpf-number"
+			},
+			"response": []
+		}
+	]
+}
