@@ -1,6 +1,8 @@
 # CHALLENGE 3 - WEEK 12:
 
-## The project being delivered consists of a back-end system that allows the creation of improvement ideas to be voted on in a session by the organization's employees. Below I will address some important points of each microservice involved and their functionalities and ultimately the application setup.
+The project being delivered consists on a back-end system that allows the creation of improvement idea to be voted on a session by the organization's employees. Below I will address some important points of each microservice involved and their functionalities and ultimately the application setup.
+* This project is part of the internship program in back-end development with Java/Spring-Boot that i peform with Compass-UOL.
+* I am currently working on some corrections for this project given the feedback i received. Points: Simplify the code, improve exception handling/error returns and implement tests. 
 
 ### MS-EUREKA:
 
@@ -130,7 +132,7 @@ newDescription
   
 ### With docker:
 
--To use the comdocker version, the project contained in the respective branch will be imported into the Intellij IDE and configured with JDK 17 (“corretto-17”).
+-To use the docker version, the project contained in the respective branch will be imported into the Intellij IDE and configured with JDK 17 (“corretto-17”).
 
 -It is necessary to generate the executable of each application (microservice) through the command carried out in the root folder of each individual project:
 
